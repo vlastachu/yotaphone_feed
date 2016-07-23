@@ -1,0 +1,38 @@
+apply plugin: 'com.android.application'
+
+android {
+
+    // In this case, the YotaPhone Add-On SDK used as compileSdkVersion, but you could use Add-On
+    // library separately, please see "dependencies" section for more information.
+    compileSdkVersion 'YotaDevices:YotaPhone2 SDK Add-On:21'
+
+    buildToolsVersion "23.0.1"
+
+    defaultConfig {
+        applicationId "me.vlastachu.feedwidget"
+        minSdkVersion 21
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    // If you want to use YotaPhone Add-On SDK library separately, you should copy it to "libs"
+    // directory in your project, and add following instruction to this section:
+    //
+    //      compile fileTree(dir: 'libs', include: ['*.jar'], excludes: ['com.yotadevices.yotaphone2.sdk.v2.jar'])
+    //      provided files('libs/com.yotadevices.yotaphone2.sdk.v2.jar')
+    //
+    // In this case, the YotaPhone SDK Add-On used as compileSdkVersion. Please, see "android"
+    // section for more information.
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.android.support:support-v4:22.2.1'
+    compile 'com.android.support:design:22.2.1'
+}

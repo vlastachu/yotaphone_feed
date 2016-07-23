@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="me.vlastachu.feedwidget">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme">
+
+        <!-- Adding YotaPhone Add-On SDK library -->
+        <uses-library
+            android:name="com.yotadevices.yotaphone2.sdk.v2"
+            android:required="true" />
+
+        <!--
+            App Widget that can working on a back screen. This widget shows how to use different
+            layout for each widget size.
+        -->
+        <receiver android:name=".FeedWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <!-- Front screen widget settings -->
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_fs_info" />
+
+            <!-- Back screen widget settings -->
+            <meta-data
+                android:name="com.yotadevices.yotaphone.bs_provider"
+                android:resource="@xml/widget_info" />
+        </receiver>
+        <!-- /FeedWidget -->
+
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

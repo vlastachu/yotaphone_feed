@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+    If you want that widget will only display on the back screen, just keep
+    an empty widgetCategory (android:widgetCategory="").
+-->
+<appwidget-provider
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="75dp"
+    android:minHeight="25dp"
+    android:updatePeriodMillis="0"
+    android:initialLayout="@layout/initial_widget_layout"
+    android:configure="me.vlastachu.feedwidget.SettingsActivity"
+    android:widgetCategory=""/>

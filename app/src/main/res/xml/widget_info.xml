@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+    The simple back screen widget with several sizes.
+-->
+<backscreen-widget-provider xmlns:sdk="http://schemas.android.com/apk/com.yotadevices.sdk"
+    sdk:size="full_screen"
+    sdk:invertable="full_screen"
+    />
