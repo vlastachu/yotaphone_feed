@@ -11,38 +11,34 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
-        <android.support.design.widget.TextInputLayout
+        android:paddingTop="16dp">
+        <TextView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <EditText
-                android:id="@+id/appwidget_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text"
-                android:hint="RSS address"/>
-        </android.support.design.widget.TextInputLayout>
-
-        <android.support.design.widget.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <EditText
-                android:id="@+id/appwidget_text2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text"
-                android:hint="RSS address"/>
-        </android.support.design.widget.TextInputLayout>
-
-        <Button
-            android:id="@+id/add_button"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="apply changes" />
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="24dp"
+            android:paddingTop="10dp"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#545454"
+            android:text="@string/feed_list_title"
+            />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/feeds_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbarStyle="outsideOverlay"
+            android:paddingBottom="200dp"
+            android:clipToPadding="false"
+
+            app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+            />
     </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton
+        android:id="@+id/add_button"
         android:src="@mipmap/ic_add_white_24dp"
         app:fabSize="normal"
         android:layout_width="wrap_content"

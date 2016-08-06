@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.neenbedankt.android-apt'
+apply plugin: 'me.tatarka.retrolambda'
 
 android {
 
@@ -8,6 +10,11 @@ android {
 
     buildToolsVersion "23.0.1"
 
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
     defaultConfig {
         applicationId "me.vlastachu.feedwidget"
         minSdkVersion 21
@@ -33,6 +40,18 @@ dependencies {
     // In this case, the YotaPhone SDK Add-On used as compileSdkVersion. Please, see "android"
     // section for more information.
     compile fileTree(include: ['*.jar'], dir: 'libs')
+    testCompile 'junit:junit:4.12'
     compile 'com.android.support:support-v4:22.2.1'
+    compile 'com.android.support:recyclerview-v7:24.1.1'
     compile 'com.android.support:design:22.2.1'
+    compile 'io.reactivex:rxjava:1.1.8'
+    compile ('org.simpleframework:simple-xml:2.6.6') {
+        exclude group: 'stax', module: 'stax-api'
+        //exclude group: 'xpp3', module: 'xpp3'
+    }
+    compile ('com.pushtorefresh.storio:sqlite:1.10.0')
+    compile 'com.pushtorefresh.storio:sqlite-annotations:1.10.0'
+    apt 'com.pushtorefresh.storio:sqlite-annotations-processor:1.10.0'
+    compile group: 'commons-io', name: 'commons-io', version: '2.5'
+    compile 'com.android.support:palette-v7:23.1.1'
 }

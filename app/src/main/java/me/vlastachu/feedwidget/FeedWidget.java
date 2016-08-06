@@ -20,6 +20,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
+import com.pushtorefresh.storio.sqlite.queries.Query;
+
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -35,6 +37,12 @@ import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+
+import me.vlastachu.feedwidget.model.FeedItem;
+import me.vlastachu.feedwidget.model.Model;
+
+import static me.vlastachu.feedwidget.model.db.FeedItemTable.COLUMN_PUB_DATE;
+import static me.vlastachu.feedwidget.model.db.FeedItemTable.TABLE;
 
 public class FeedWidget extends AppWidgetProvider {
 
@@ -68,15 +76,6 @@ public class FeedWidget extends AppWidgetProvider {
     private static int offset = 0;
     private static List<FeedItem> items = new ArrayList<>();
 
-    private static class FeedItem {
-        public final String title;
-        public final String content;
-
-        public FeedItem(String title, String content) {
-            this.title = title;
-            this.content = content;
-        }
-    }
 
     static void updateWidget(final Context context, final AppWidgetManager widgetManager, final int id) {
         Log.d(TAG, "updateWidgets: Widget id = " + id);
@@ -85,46 +84,8 @@ public class FeedWidget extends AppWidgetProvider {
         //widgetOptions = widgetManager.getAppWidgetOptions(id);
 
         final String resourceUrl = SettingsActivity.loadTitlePref(context, id);
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                run("http");
-            }
-            public void run(String scheme) {
-                try {
-                    URI uri = new URI(resourceUrl);
-                    URL url;
-                    if(uri.getScheme() == null || uri.getScheme().isEmpty()) {
-                        url = new URL(scheme + "://" + resourceUrl);
-                        Log.d(TAG, "run: scheme changed to " + scheme);
-                    }
-                    else {
-                        url = new URL(resourceUrl);
-                    }
-                    InputStream is = url.openStream();
-                    Element root = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-                                                         .parse(is).getDocumentElement();
-                    Element channel = (Element)root.getElementsByTagName("channel").item(0);
-                    NodeList items = channel.getElementsByTagName("item");
-                    FeedWidget.items.clear();
-                    for (int i = 0; i < items.getLength(); i++) {
-                        Element item = (Element)items.item(i);
-                        CharacterData title = getTagsContent(item, "title");
-                        CharacterData desc = getTagsContent(item, "description");
-                        FeedWidget.items.add(new FeedItem(title.getData(), desc.getData()));
-                    }
-
-                } catch (Exception e) {
-                    Log.e(TAG, "run exception: " + e + "; message: " + e.getMessage());
-                    if(scheme.equals("http"))
-                        run("https");
-                    return;
-                }
-                //views.setTextViewText(R.id.appwidget_text, widgetText);
-                updateView(context, -1);
-            }
-        }).start();
+        items = FeedItem.getItemsByOffset(context, offset, 5);
+        updateView(context, -1);
     }
 
     private static CharacterData getTagsContent(Element element, String tagName) {
@@ -143,11 +104,21 @@ public class FeedWidget extends AppWidgetProvider {
         String action = intent.getAction();
         if (UP_CLICKED.equals(action) || DOWN_CLICKED.equals(action)) {
             if (UP_CLICKED.equals(intent.getAction())) {
-                if (offset > 0)
+                if (offset > 0) {
                     offset -= titles.length;
+                } else {
+                    Model.getInstance().refresh(() -> updateView(context, -1), context);
+                    return;
+                }
             } else {
+                if (items.size() < 5) {
+                    Model.getInstance().refresh(() -> updateView(context, -1), context);
+                    offset = 0;
+                    return;
+                }
                 offset += titles.length;
             }
+            items = FeedItem.getItemsByOffset(context, offset, 5);
             updateView(context, -1);
         }
         if(action.startsWith(ITEM_CLICKED)) {
@@ -194,6 +165,17 @@ public class FeedWidget extends AppWidgetProvider {
         AppWidgetManager widgetManager = AppWidgetManager.getInstance(context);
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
 
+        if (offset == 0)
+            views.setImageViewResource(R.id.button_up, R.mipmap.ic_refresh_white_36dp);
+        else
+            views.setImageViewResource(R.id.button_up, R.mipmap.ic_keyboard_arrow_up_white_36dp);
+
+        if (items.size() < 5)
+            views.setImageViewResource(R.id.button_down, R.mipmap.ic_refresh_white_36dp);
+        else
+            views.setImageViewResource(R.id.button_down, R.mipmap.ic_keyboard_arrow_down_white_36dp);
+
+
         views.setOnClickPendingIntent(R.id.button_up, getPendingSelfIntent(context, UP_CLICKED));
         views.setOnClickPendingIntent(R.id.button_down, getPendingSelfIntent(context, DOWN_CLICKED));
 
@@ -205,14 +187,13 @@ public class FeedWidget extends AppWidgetProvider {
         for (int i = 0; i < titles.length; i++) {
             if (i + offset < items.size()) {
                 FeedItem item = items.get(i + offset);
-                views.setTextViewText(titles[i], item.title);
-                views.setTextViewText(contents[i], Html.fromHtml(removeImagesAndNewlines(item.content)));
+                views.setTextViewText(titles[i], item.getTitle());
+                views.setTextViewText(contents[i], Html.fromHtml(removeImagesAndNewlines(item.getDescription())));
                 views.setViewVisibility(content_menues[i], View.GONE);
             }
         }
 
         if (showMenu != -1) {
-            Log.w(TAG, "updateView: shkshk");
             int n = showMenu;
             views.setViewVisibility(content_menues[n], View.VISIBLE);
             views.setOnClickPendingIntent(preview_buttons[n], getPendingSelfIntent(context,
@@ -244,5 +225,4 @@ public class FeedWidget extends AppWidgetProvider {
         return AppWidgetManager.getInstance(context).getAppWidgetIds(new ComponentName(context,
                 FeedWidget.class));
     }
-
 }
